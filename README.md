@@ -16,4 +16,4 @@ $ node index.js
 ```
 
 ## Screenshots
-<img width="660" alt="Resonite's friend status" src="https://github.com/igz0/resonite-online-checker-cli/assets/37741728/817ea421-81c9-450a-8b51-1202d6d1af1b">
+<img width="660" alt="Online status of Resonite's friends" src="https://github.com/igz0/resonite-online-checker-cli/assets/37741728/ba961b0a-edab-49f5-982c-dd65b7e6c7a7">
