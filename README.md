@@ -15,5 +15,5 @@ $ npm install
 $ node index.js
 ```
 
-## Screenshots
+## Screenshot
 <img width="660" alt="Online status of Resonite's friends" src="https://github.com/igz0/resonite-online-checker-cli/assets/37741728/ba961b0a-edab-49f5-982c-dd65b7e6c7a7">
