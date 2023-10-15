@@ -5,6 +5,7 @@ import readline from "node:readline";
 
 const API_BASE_URL = "https://api.resonite.com";
 const SESSION_CACHE_INTERVAL_MILLISECONDS = 10000;
+const MAX_CONNECTION_RETRIES = 5;
 
 class ApiClient {
   constructor() {
@@ -167,7 +168,28 @@ async function main() {
     SESSION_CACHE_INTERVAL_MILLISECONDS
   );
 
-  await connection.start();
+  let isConnected = false;
+  for (let i = 0; i < MAX_CONNECTION_RETRIES; i++) {
+    try {
+      await connection.start();
+      isConnected = true;
+      console.log("Connected to SignalR hub successfully.");
+      break; // If connected successfully, exit the loop
+    } catch {
+      console.error(
+        `Failed to connect. Retrying in 5 seconds... (${
+          i + 1
+        }/${MAX_CONNECTION_RETRIES} attempts)`
+      );
+      await new Promise((resolve) => setTimeout(resolve, 5000)); // Wait 5 seconds before retrying
+    }
+  }
+
+  if (!isConnected) {
+    console.error("Connection failed. Please try again after some time.");
+    process.exit(1);
+  }
+
   await connection.invoke("InitializeStatus");
   await updateSessionCache();
   await connection.invoke("RequestStatus", null, false);
