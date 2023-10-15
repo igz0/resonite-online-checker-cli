@@ -142,11 +142,13 @@ async function main() {
     .configureLogging(signalR.LogLevel.Information)
     .build();
 
+  connection.on("debug", (message) => {});
+
   connection.on("receivesessionupdate", (message) => {});
 
   connection.on("removesession", (message) => {});
 
-  connection.on("debug", (message) => {});
+  connection.on("sendstatustouser", (message) => {});
 
   connection.on("receivestatusupdate", async (message) => {
     const currentWorld = getActiveWorldFromCache(message.userId);
