@@ -10,8 +10,8 @@ class ApiClient {
   constructor() {
     this.machineId = crypto.randomBytes(32).toString("base64url");
     this.uid = this.sha256(this.machineId);
-    this.session_token = null;
-    this.user_id = null;
+    this.sessionToken = null;
+    this.userId = null;
     this.secretMachineId = crypto.randomUUID();
   }
 
@@ -27,33 +27,33 @@ class ApiClient {
       headers: {
         ...init.headers,
         UID: this.uid,
-        Authorization: this.session_token ? this.authorization() : undefined,
+        Authorization: this.sessionToken ? this.authorization() : undefined,
       },
     };
     return fetch(url, initobj);
   }
 
   async login(identity, password) {
-    const login_credentials = {
+    const loginCredentials = {
       ownerId: null,
       email: null,
-      username: null,
+      userName: null,
       authentication: { $type: "password", password },
       secretMachineId: this.secretMachineId,
       rememberMe: false,
     };
 
     if (identity.startsWith("U-")) {
-      login_credentials.ownerId = identity;
+      loginCredentials.ownerId = identity;
     } else if (identity.indexOf("@") > 0) {
-      login_credentials.email = identity;
+      loginCredentials.email = identity;
     } else {
-      login_credentials.username = identity;
+      loginCredentials.userName = identity;
     }
 
     const result = await this.request(`${API_BASE_URL}/userSessions`, {
       method: "POST",
-      body: JSON.stringify(login_credentials),
+      body: JSON.stringify(loginCredentials),
       headers: { "Content-Type": "application/json" },
     });
 
@@ -61,25 +61,25 @@ class ApiClient {
       return null;
     }
 
-    const user_session_result = await result.json();
-    this.user_id = user_session_result.entity.userId;
-    this.session_token = user_session_result.entity.token;
-    return user_session_result;
+    const userSessionResult = await result.json();
+    this.userId = userSessionResult.entity.userId;
+    this.sessionToken = userSessionResult.entity.token;
+    return userSessionResult;
   }
 
   async logout() {
-    if (!this.session_token) return;
+    if (!this.sessionToken) return;
 
     const result = await this.request(
-      `${API_BASE_URL}/userSessions/${this.user_id}/${this.session_token}`,
+      `${API_BASE_URL}/userSessions/${this.userId}/${this.sessionToken}`,
       { method: "DELETE" }
     );
     console.log(result.status + " " + result.statusText);
   }
 
   authorization() {
-    return this.session_token
-      ? "res " + this.user_id + ":" + this.session_token
+    return this.sessionToken
+      ? "res " + this.userId + ":" + this.sessionToken
       : null;
   }
 }
@@ -87,10 +87,10 @@ class ApiClient {
 let sessionCache = [];
 const friends = {};
 
-function getActiveWorldFromCache(userID) {
+function getActiveWorldFromCache(userId) {
   for (let session of sessionCache) {
     for (let user of session.sessionUsers) {
-      if (user.userID === userID && user.isPresent) {
+      if (user.userID === userId && user.isPresent) {
         return session.name;
       }
     }
@@ -128,9 +128,9 @@ async function main() {
   const id = await question("Enter your ID: ");
   const password = await question("Enter your password: ");
 
-  const login_result = (await client.login(id, password))?.entity;
+  const loginResult = (await client.login(id, password))?.entity;
 
-  if (!login_result) {
+  if (!loginResult) {
     console.log("Login error");
     process.exit(1);
   }
